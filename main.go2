@@ -17,7 +17,6 @@ func print[T any](slice []T) {
 	fmt.Print("\n")
 }
 
-
 // lets make an identity function
 func id[U any](arg U) U{
 	return arg
@@ -36,9 +35,9 @@ func addOne[U addOnly](x U) U {
 	return add(x, 1)
 }
 
-// how to do a map?
-type operator[U any] func(x U) U
-func myMap[T any](f operator[T], slice []T) []T {
+type Operator[U any] func(x U) U
+
+func fmap[T any](f Operator[T], slice []T) []T {
 	out := make([]T, len(slice))
 	for i, v := range slice {
 		out[i] = f(v)
@@ -46,10 +45,48 @@ func myMap[T any](f operator[T], slice []T) []T {
 	return out
 }
 
+type Predicate[U any] func(U) bool
+
+func allowAll[U any](_ U) bool {
+	return true
+}
+
+func denyAll[U any](_ U) bool {
+	return false
+}
+
+func filter[T any](p Predicate[T], slice []T) []T {
+	out := make([]T, 0, len(slice))
+	for _, v := range slice {
+		if p(v) {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+func rule1(v float64) bool {
+	if v < 2.0 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// let's try the fun one -- foldr
+//func fold[U any, T any](acc U, slice []T) U {
+//
+//}
+
+
 // =============================================================================
 
 func main() {
 	numbers := []float64{1.1, 2.2, 3.3}
 	// for now, seems like explicitly declare type is needed, i.e. id[int]
-	print(myMap(addOne[float64], numbers))
+	print(fmap(addOne[float64], numbers))
+
+	print(filter(denyAll[float64], numbers))
+	print(filter(rule1, numbers))
+
 }
