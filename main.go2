@@ -73,11 +73,20 @@ func rule1(v float64) bool {
 	}
 }
 
-// let's try the fun one -- foldr
-//func fold[U any, T any](acc U, slice []T) U {
-//
-//}
+type Accumulator[U any, T any] func(acc U, x T) U
 
+// let's try the fun one -- foldl
+func foldl[U any, T any](f Accumulator[U, T], acc U, slice []T) U {
+	var out U = acc
+	for _, v := range slice {
+		out = f(out, v)
+	}
+	return out
+}
+
+func sum(acc float64, x float64) float64 {
+	return acc + x 
+}
 
 // =============================================================================
 
@@ -89,4 +98,7 @@ func main() {
 	print(filter(denyAll[float64], numbers))
 	print(filter(rule1, numbers))
 
+	// this doesn't work for some reason
+	// revisit it later
+	// print(foldl(sum[float64, float64], 0.0, numbers))
 }
